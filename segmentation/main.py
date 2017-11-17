@@ -5,6 +5,7 @@ import transforms as extended_transforms
 from datasets import BroadDataset
 from utilities import mIoULoss
 from model import UNet
+import torch
 from torchvision import transforms
 import torch.optim as optim
 from torch.utils.data import DataLoader
