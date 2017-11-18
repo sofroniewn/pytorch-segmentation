@@ -1,5 +1,5 @@
 root_dir = '/Users/nicholassofroniew/Documents/BBBC/BBBC020_v1'
-num_epochs = 2
+num_epochs = 20
 
 import transforms as extended_transforms
 from datasets import BroadDataset
@@ -65,5 +65,5 @@ for epoch in range(num_epochs):  # loop over the dataset multiple times
 print('Finished Training')
 
 snapshot_name = 'UNet'
-torch.save(net.state_dict(), join(base, 'models', snapshot_name + '.pth'))
-torch.save(optimizer.state_dict(), join(base, 'models', 'opt_' + snapshot_name + '.pth'))
+torch.save(net.state_dict(), join(root_dir, 'models', snapshot_name + '.pth'))
+torch.save(optimizer.state_dict(), join(root_dir, 'models', 'opt_' + snapshot_name + '.pth'))
