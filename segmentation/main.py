@@ -9,7 +9,7 @@ def train(trainloader, net, criterion, optimizer, epoch):
 
         # wrap them in Variable
         if torch.cuda.is_available():
-            inputs, labels = Variable(inputs).cuda, Variable(labels).cuda
+            inputs, labels = Variable(inputs).cuda(), Variable(labels).cuda()
         else:
             inputs, labels = Variable(inputs), Variable(labels)
 
