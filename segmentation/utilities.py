@@ -20,7 +20,7 @@ class mIoULoss(nn.Module):
 
     def forward(self, inputs, targets):
         smooth = 1
-        predicted = inputs #F.log_softmax(inputs)
+        predicted = F.log_softmax(inputs)
         intersection = predicted*targets.float()
         union = predicted + targets.float() - intersection
         return 100*(1-(intersection.sum()+smooth)/(union.sum()+smooth))
