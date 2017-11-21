@@ -1,4 +1,5 @@
 from torch.autograd import Variable
+import torch
 
 def train(trainloader, net, criterion, optimizer, epoch):
     running_loss = 0.0
