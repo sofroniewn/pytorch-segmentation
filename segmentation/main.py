@@ -7,7 +7,10 @@ def train(trainloader, net, criterion, optimizer, epoch):
         inputs, labels = data
 
         # wrap them in Variable
-        inputs, labels = Variable(inputs), Variable(labels)
+        if torch.cuda.is_available():
+            inputs, labels = Variable(inputs).cuda, Variable(labels).cuda
+        else:
+            inputs, labels = Variable(inputs), Variable(labels)
 
         # zero the parameter gradients
         optimizer.zero_grad()

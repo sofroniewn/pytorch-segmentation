@@ -41,7 +41,10 @@ def train_command(input, output, epochs):
                                           shuffle=True, num_workers=2)
 
     status('loading model')
-    net = UNet(1)
+    if torch.cuda.is_available():
+        net = UNet(1).cuda()
+    else:
+        net = UNet(1)
     net.train()
 
     criterion = mIoULoss(size_average=False)
