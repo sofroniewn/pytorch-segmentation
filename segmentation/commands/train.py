@@ -48,7 +48,7 @@ def train_command(input, output, epochs):
     net.train()
 
     criterion = mIoULoss(size_average=False)
-    optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+    optimizer = optim.SGD(net.parameters(), lr=0.01, momentum=0.9)
 
     status('starting training')
     for epoch in range(epochs):  # loop over the dataset multiple times

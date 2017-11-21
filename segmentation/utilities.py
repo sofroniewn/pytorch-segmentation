@@ -14,13 +14,21 @@ class CrossEntropyLoss2d(nn.Module):
     def forward(self, inputs, targets):
         return self.nll_loss(F.log_softmax(inputs), targets)
 
+class BCELoss2d(nn.Module):
+    def __init__(self, weight=None, size_average=True, ignore_index=255):
+        super(BCELoss2d, self).__init__()
+        self.nll_loss = nn.BCELoss()
+
+    def forward(self, inputs, targets):
+        return self.nll_loss(F.log_softmax(inputs), targets)
+
 class mIoULoss(nn.Module):
     def __init__(self, weight=None, size_average=True):
         super(mIoULoss, self).__init__()
 
     def forward(self, inputs, targets):
         smooth = 1
-        predicted = F.log_softmax(inputs)
+        predicted = F.sigmoid(inputs)
         intersection = predicted*targets.float()
         union = predicted + targets.float() - intersection
         return 100*(1-(intersection.sum()+smooth)/(union.sum()+smooth))
