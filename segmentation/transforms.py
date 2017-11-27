@@ -21,8 +21,6 @@ class Compose(object):
         self.transforms = transforms
 
     def __call__(self, img, mask):
-        print(img.size)
-        print(mask.size)
         assert img.size == mask.size
         for t in self.transforms:
             img, mask = t(img, mask)
