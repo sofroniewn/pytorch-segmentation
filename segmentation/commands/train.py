@@ -33,7 +33,7 @@ def train_command(input, output, epochs, display, lr):
         [transforms.ToTensor(),
         #transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
         ])
-     target_transform = extended_transforms.MaskToTensor()
+    target_transform = extended_transforms.MaskToTensor()
 
     status('setting up dataset from %s' % input)
     train_dataset = BroadDataset(input, 'train', joint_transform=joint_transform, input_transform=input_transform, target_transform=target_transform)
