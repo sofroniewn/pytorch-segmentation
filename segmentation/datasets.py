@@ -3,6 +3,7 @@ from skimage.io import imread
 from os.path import join
 from glob import glob
 from PIL import Image
+from numpy import zeros
 
 class BroadDataset(Dataset):
     """Broad Dataset BBBC020."""
@@ -24,7 +25,8 @@ class BroadDataset(Dataset):
         self.mode = mode
         self.names = glob(join(self.root_dir, self.mode, 'image_*.tif'))
         self.masks = glob(join(self.root_dir, self.mode, 'mask_*.tif'))
-        assert(len(self.names) == len(self.masks))
+        if self.mode in ['train', 'val']:
+            assert(len(self.names) == len(self.masks))
         self.joint_transform = joint_transform
         self.input_transform = input_transform
         self.target_transform = target_transform
@@ -36,8 +38,11 @@ class BroadDataset(Dataset):
         #name = #
         image = imread(self.names[idx])
         #image[int(image.shape[0]/2)-10:int(image.shape[0]/2)+10,int(image.shape[1]/2)-10:int(image.shape[1]/2)+10,:] = [255, 255, 255]
+        if len(self.masks) != 0:
+            mask = Image.fromarray(imread(self.masks[idx]))
+        else:
+            mask = Image.fromarray(zeros((image.shape[0], image.shape[1])))
         image = Image.fromarray(image)
-        mask = Image.fromarray(imread(self.masks[idx]))
 
         if self.joint_transform:
             image, mask = self.joint_transform(image, mask)

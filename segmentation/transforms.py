@@ -13,7 +13,8 @@ import numbers
 
 class MaskToTensor(object):
     def __call__(self, img):
-        return torch.from_numpy(array(img, dtype=int32)/img.max()).long()
+        imgarray = array(img, dtype=int32)
+        return torch.from_numpy(imgarray/imgarray.max()).long()
 
 class Compose(object):
     def __init__(self, transforms):

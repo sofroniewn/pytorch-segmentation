@@ -1,7 +1,7 @@
 from torch.autograd import Variable
 import torch
 
-def train(trainloader, net, criterion, optimizer, epoch):
+def train(trainloader, net, criterion, optimizer, epoch, display):
     running_loss = 0.0
     for i, data in enumerate(trainloader, 0):
         # get the inputs
@@ -24,7 +24,7 @@ def train(trainloader, net, criterion, optimizer, epoch):
 
         # print statistics
         running_loss += loss.data[0]
-        if i % 20 == 19:    # print every 2000 mini-batches
+        if i % display == display-1:    # print every 2000 mini-batches
             print('[%d, %5d] loss: %.3f' %
-                  (epoch + 1, i + 1, running_loss / 20))
+                  (epoch + 1, i + 1, running_loss / display))
             running_loss = 0.0
