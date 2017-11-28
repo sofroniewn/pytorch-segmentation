@@ -51,6 +51,10 @@ def validate(valloader, net, criterion, optimizer, save, output):
         loss = criterion(outputs, labels).data[0]
         prediction = F.sigmoid(outputs)
         predict = prediction.squeeze(0).squeeze(0).data
+        if torch.cuda.is_available():
+            predict = predict.cpu().numpy()
+        else:
+            predict = predict.numpy()
         if save:
             imsave(join(output, 'predict_%04d.tif' % ind), (255*predict).astype('uint8'), plugin='tifffile', photometric='minisblack')
 
