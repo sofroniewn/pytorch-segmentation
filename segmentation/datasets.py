@@ -36,6 +36,9 @@ class BroadDataset(Dataset):
 
     def __getitem__(self, idx):
         #name = #
+        print('load')
+        print(self.names[idx])
+        print(self.masks[idx])
         image = imread(self.names[idx])
         #image[int(image.shape[0]/2)-10:int(image.shape[0]/2)+10,int(image.shape[1]/2)-10:int(image.shape[1]/2)+10,:] = [255, 255, 255]
         if len(self.masks) != 0:
