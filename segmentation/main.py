@@ -39,9 +39,15 @@ def validate(valloader, net, criterion, optimizer, save, output):
     total = 0
     ind = 0
     for data in valloader:
-        images, labels = data
-        outputs = net(Variable(images))
-        loss = criterion(outputs, Variable(labels)).data.numpy()[0]
+        inputs, labels = data
+
+        if torch.cuda.is_available():
+            inputs, labels = Variable(inputs).cuda(), Variable(labels).cuda()
+        else:
+            inputs, labels = Variable(inputs), Variable(labels)
+
+        outputs = net(inputs)
+        loss = criterion(outputs, labels).data.numpy()[0]
         print(loss)
         prediction = F.sigmoid(outputs)
         predict = prediction.squeeze(0).squeeze(0).data.numpy()
