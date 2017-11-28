@@ -1,4 +1,6 @@
+from os.path import join
 from torch.autograd import Variable
+from skimage.io import imsave
 import torch
 
 def train(trainloader, net, criterion, optimizer, epoch, display):
@@ -28,3 +30,28 @@ def train(trainloader, net, criterion, optimizer, epoch, display):
             print('[%d, %5d] loss: %.3f' %
                   (epoch + 1, i + 1, running_loss / display))
             running_loss = 0.0
+
+def validate(valloader, net, criterion, save, output):
+    if save:
+        torch.save(net.state_dict(), join(output, 'model.pth'))
+        torch.save(optimizer.state_dict(), join(output, 'opt.pth'))
+    correct = 0
+    total = 0
+    ind = 0
+    for data in valloader:
+        images, labels = data
+        outputs = net(Variable(images))
+        loss = criterion(outputs, Variable(labels)).data.numpy()[0]
+        print(loss)
+        prediction = F.sigmoid(outputs)
+        predict = prediction.squeeze(0).squeeze(0).data.numpy()
+        if save:
+            imsave(join(output, 'predict_%04d.tif' % ind), (255*predict).astype('uint8'), plugin='tifffile', photometric='minisblack')
+
+
+    total += labels.size(0)
+    correct += loss
+    ind += 1
+
+    print('Mean loss: %.2f %%' % (
+        correct / total))

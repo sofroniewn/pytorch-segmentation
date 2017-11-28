@@ -10,8 +10,8 @@ from torchvision import transforms
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
-from os.path import join
-
+from os.path import join, isdir
+from os import mkdir
 
 @click.argument('output', nargs=1, metavar='<output directory>', required=False, default=None)
 @click.argument('input', nargs=1, metavar='<input directory>', required=True)
@@ -23,6 +23,7 @@ from os.path import join
 @click.command('train', short_help='train on input directory', options_metavar='<options>')
 
 def train_command(input, output, epochs, display, lr, name, save_epoch):
+    overwrite = True
     epochs = int(epochs)
     joint_transform = extended_transforms.Compose([
         extended_transforms.RandomHorizontallyFlip(),
@@ -42,6 +43,10 @@ def train_command(input, output, epochs, display, lr, name, save_epoch):
 
     trainloader = DataLoader(train_dataset, batch_size=1,
                                           shuffle=True, num_workers=2)
+
+    val_dataset = BroadDataset(input, 'train', input_transform=input_transform, target_transform=target_transform)
+    valloader = DataLoader(val_dataset, batch_size=1,
+                                          shuffle=False, num_workers=2)
 
     status('loading model')
     if torch.cuda.is_available():
@@ -64,15 +69,24 @@ def train_command(input, output, epochs, display, lr, name, save_epoch):
         # save out model every n epochs
         if save_epoch is not None:
             if epoch % save_epoch == save_epoch-1:
+                status('saving network')
                 snapshot_name = 'model-%04d' % epoch
-                status('saving network at %s' % snapshot_name)
-                torch.save(net.state_dict(), join(output, snapshot_name + '.pth'))
-                torch.save(optimizer.state_dict(), join(output, 'opt_' + snapshot_name + '.pth'))
+                save_path = join(output, snapshot_name)
+                if isdir(save_path) and not overwrite:
+                    error('directory already exists and overwrite is false')
+                    return
+                elif isdir(save_path) and overwrite:
+                    rmtree(save_path)
+                    mkdir(save_path)
+                validate(valloader, net, criterion, True, save_path)
 
     status('finished training')
-
-    status('saving network at %s' % output)
-    snapshot_name = 'model-%04d' % epoch
-    torch.save(net.state_dict(), join(output, snapshot_name + '.pth'))
-    torch.save(optimizer.state_dict(), join(output, 'opt_' + snapshot_name + '.pth'))
-    status('finished training')
+    status('saving network')
+    save_path = join(output, snapshot_name)
+    if isdir(save_path) and not overwrite:
+        error('directory already exists and overwrite is false')
+        return
+    elif isdir(save_path) and overwrite:
+        rmtree(save_path)
+        mkdir(save_path)
+    validate(valloader, net, criterion, True, save_path)
