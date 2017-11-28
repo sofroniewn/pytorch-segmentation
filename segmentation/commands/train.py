@@ -15,12 +15,13 @@ from os.path import join
 
 @click.argument('output', nargs=1, metavar='<output directory>', required=False, default=None)
 @click.argument('input', nargs=1, metavar='<input directory>', required=True)
+@click.option('--name', nargs=1, metavar='<snapshot_name>', required=False, default=None)
 @click.option('--epochs', nargs=1, default=2, type=float, help='Number of epochs')
 @click.option('--display', nargs=1, default=20, type=float, help='Number of train samples before displaying result')
 @click.option('--lr', nargs=1, default=0.01, type=float, help='Learning rate')
 @click.command('train', short_help='train on input directory', options_metavar='<options>')
 
-def train_command(input, output, epochs, display, lr):
+def train_command(input, output, epochs, display, lr, name):
     epochs = int(epochs)
     joint_transform = extended_transforms.Compose([
         extended_transforms.RandomHorizontallyFlip(),
@@ -50,6 +51,11 @@ def train_command(input, output, epochs, display, lr):
 
     criterion = mIoULoss(size_average=False)
     optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
+
+    if name is not None:
+        status('loading weights')
+        net.load_state_dict(torch.load(join(output, name + '.pth')))
+        optimizer.load_state_dict(torch.load(join(output, 'opt_' + name + '.pth')))
 
     status('starting training')
     for epoch in range(epochs):  # loop over the dataset multiple times
