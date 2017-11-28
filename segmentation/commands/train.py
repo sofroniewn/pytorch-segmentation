@@ -18,10 +18,11 @@ from os.path import join
 @click.option('--name', nargs=1, metavar='<snapshot_name>', required=False, default=None)
 @click.option('--epochs', nargs=1, default=2, type=float, help='Number of epochs')
 @click.option('--display', nargs=1, default=20, type=float, help='Number of train samples before displaying result')
+@click.option('--save_epoch', nargs=1, default=None, type=float, help='Number of epochs before saving')
 @click.option('--lr', nargs=1, default=0.01, type=float, help='Learning rate')
 @click.command('train', short_help='train on input directory', options_metavar='<options>')
 
-def train_command(input, output, epochs, display, lr, name):
+def train_command(input, output, epochs, display, lr, name, save_epoch):
     epochs = int(epochs)
     joint_transform = extended_transforms.Compose([
         extended_transforms.RandomHorizontallyFlip(),
@@ -60,10 +61,17 @@ def train_command(input, output, epochs, display, lr, name):
     status('starting training')
     for epoch in range(epochs):  # loop over the dataset multiple times
         train(trainloader, net, criterion, optimizer, epoch, display)
+        # save out model every n epochs
+        if save_epoch is not None:
+            if epoch % save_epoch == save_epoch-1:
+                snapshot_name = 'model-%04d' % epoch
+                torch.save(net.state_dict(), join(output, snapshot_name + '.pth'))
+                torch.save(optimizer.state_dict(), join(output, 'opt_' + snapshot_name + '.pth'))
+
     status('finished training')
 
     status('saving network at %s' % output)
-    snapshot_name = 'UNet'
+    snapshot_name = 'model-%04d' % epoch
     torch.save(net.state_dict(), join(output, snapshot_name + '.pth'))
     torch.save(optimizer.state_dict(), join(output, 'opt_' + snapshot_name + '.pth'))
     status('finished training')
