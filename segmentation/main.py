@@ -31,7 +31,7 @@ def train(trainloader, net, criterion, optimizer, epoch, display):
                   (epoch + 1, i + 1, running_loss / display))
             running_loss = 0.0
 
-def validate(valloader, net, criterion, save, output):
+def validate(valloader, net, criterion, optimizer, save, output):
     if save:
         torch.save(net.state_dict(), join(output, 'model.pth'))
         torch.save(optimizer.state_dict(), join(output, 'opt.pth'))

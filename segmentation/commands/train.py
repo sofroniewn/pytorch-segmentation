@@ -80,7 +80,7 @@ def train_command(input, output, epochs, display, lr, name, save_epoch):
                     mkdir(save_path)
                 else:
                     mkdir(save_path)
-                validate(valloader, net, criterion, True, save_path)
+                validate(valloader, net, criterion, optimizer, True, save_path)
 
     status('finished training')
     status('saving network')
