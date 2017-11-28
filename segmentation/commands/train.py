@@ -10,8 +10,9 @@ from torchvision import transforms
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
-from os.path import join, isdir, rmtree
+from os.path import join, isdir
 from os import mkdir
+from shutil import rmtree
 
 @click.argument('output', nargs=1, metavar='<output directory>', required=False, default=None)
 @click.argument('input', nargs=1, metavar='<input directory>', required=True)
