@@ -65,6 +65,7 @@ def train_command(input, output, epochs, display, lr, name, save_epoch):
         if save_epoch is not None:
             if epoch % save_epoch == save_epoch-1:
                 snapshot_name = 'model-%04d' % epoch
+                status('saving network at %s' % snapshot_name)
                 torch.save(net.state_dict(), join(output, snapshot_name + '.pth'))
                 torch.save(optimizer.state_dict(), join(output, 'opt_' + snapshot_name + '.pth'))
 
