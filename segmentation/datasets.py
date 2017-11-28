@@ -23,8 +23,8 @@ class BroadDataset(Dataset):
         self.root_dir = root_dir
         assert(mode in ['train', 'test', 'val'])
         self.mode = mode
-        self.names = glob(join(self.root_dir, self.mode, 'image_*.tif'))
-        self.masks = glob(join(self.root_dir, self.mode, 'mask_*.tif'))
+        self.names = glob(join(self.root_dir, self.mode, 'image_*.tif')).sort()
+        self.masks = glob(join(self.root_dir, self.mode, 'mask_*.tif')).sort()
         if self.mode in ['train', 'val']:
             assert(len(self.names) == len(self.masks))
         self.joint_transform = joint_transform
