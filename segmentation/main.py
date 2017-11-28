@@ -47,10 +47,10 @@ def validate(valloader, net, criterion, optimizer, save, output):
             inputs, labels = Variable(inputs), Variable(labels)
 
         outputs = net(inputs)
-        loss = criterion(outputs, labels).data.numpy()[0]
+        loss = criterion(outputs, labels).data[0]
         print(loss)
         prediction = F.sigmoid(outputs)
-        predict = prediction.squeeze(0).squeeze(0).data.numpy()
+        predict = prediction.squeeze(0).squeeze(0).data
         if save:
             imsave(join(output, 'predict_%04d.tif' % ind), (255*predict).astype('uint8'), plugin='tifffile', photometric='minisblack')
 
