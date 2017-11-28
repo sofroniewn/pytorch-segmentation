@@ -3,7 +3,7 @@ import segmentation.transforms as extended_transforms
 from segmentation.datasets import BroadDataset
 from segmentation.utilities import mIoULoss
 from segmentation.model import UNet
-from segmentation.main import train
+from segmentation.main import train, validate
 from .common import success, status, error, warn
 import torch
 from torchvision import transforms
