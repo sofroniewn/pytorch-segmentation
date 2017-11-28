@@ -1,5 +1,6 @@
 from os.path import join
 from torch.autograd import Variable
+import torch.nn.functional as F
 from skimage.io import imsave
 import torch
 
@@ -48,7 +49,6 @@ def validate(valloader, net, criterion, optimizer, save, output):
 
         outputs = net(inputs)
         loss = criterion(outputs, labels).data[0]
-        print(loss)
         prediction = F.sigmoid(outputs)
         predict = prediction.squeeze(0).squeeze(0).data
         if save:
