@@ -78,6 +78,8 @@ def train_command(input, output, epochs, display, lr, name, save_epoch):
                 elif isdir(save_path) and overwrite:
                     rmtree(save_path)
                     mkdir(save_path)
+                else:
+                    mkdir(save_path)
                 validate(valloader, net, criterion, True, save_path)
 
     status('finished training')
@@ -88,5 +90,7 @@ def train_command(input, output, epochs, display, lr, name, save_epoch):
         return
     elif isdir(save_path) and overwrite:
         rmtree(save_path)
+        mkdir(save_path)
+    else:
         mkdir(save_path)
     validate(valloader, net, criterion, True, save_path)
