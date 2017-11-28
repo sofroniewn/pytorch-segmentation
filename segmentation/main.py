@@ -58,10 +58,9 @@ def validate(valloader, net, criterion, optimizer, save, output):
         if save:
             imsave(join(output, 'predict_%04d.tif' % ind), (255*predict).astype('uint8'), plugin='tifffile', photometric='minisblack')
 
-
-    total += labels.size(0)
-    correct += loss
-    ind += 1
+        total += labels.size(0)
+        correct += loss
+        ind += 1
 
     print('Mean loss: %.2f %%' % (
         correct / total))
