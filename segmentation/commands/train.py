@@ -70,8 +70,8 @@ def train_command(input, output, epochs, display, lr, name, save_epoch):
         # save out model every n epochs
         if save_epoch is not None:
             if epoch % save_epoch == save_epoch-1:
-                status('saving network %s' % snapshot_name)
                 snapshot_name = 'model-%04d' % epoch
+                status('saving network %s' % snapshot_name)
                 save_path = join(output, snapshot_name)
                 if isdir(save_path) and not overwrite:
                     error('directory already exists and overwrite is false')
