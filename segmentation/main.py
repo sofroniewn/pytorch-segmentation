@@ -6,6 +6,7 @@ import torch
 
 def train(trainloader, net, criterion, optimizer, epoch, display):
     running_loss = 0.0
+    count = 0.0
     for i, data in enumerate(trainloader, 0):
         # get the inputs
         inputs, labels = data
@@ -27,10 +28,12 @@ def train(trainloader, net, criterion, optimizer, epoch, display):
 
         # print statistics
         running_loss += loss.data[0]
+        count += 1
         if i % display == display-1:    # print every 2000 mini-batches
             print('[%d, %5d] loss: %.3f' %
-                  (epoch + 1, i + 1, running_loss / display))
+                  (epoch + 1, i + 1, running_loss / count))
             running_loss = 0.0
+            count = 0.0
 
 def validate(valloader, net, criterion, optimizer, save, output):
     if save:
