@@ -13,6 +13,7 @@ from torch.autograd import Variable
 from os.path import join, isdir
 from os import mkdir
 from shutil import rmtree
+from numpy import random
 
 @click.argument('output', nargs=1, metavar='<output directory>', required=False, default=None)
 @click.argument('input', nargs=1, metavar='<input directory>', required=True)
@@ -31,7 +32,8 @@ def train_command(input, output, epochs, display, lr, name, save_epoch):
         extended_transforms.RandomVerticallyFlip(),
         #    extended_transforms.CenterCrop(512),
         #    extended_transforms.RandomRotate(45),
-        extended_transforms.RandomWarp(5, 20)])
+        extended_transforms.RandomWarp(5, 20)
+        ])
 
     input_transform = transforms.Compose(
         [transforms.ToTensor(),
@@ -67,6 +69,7 @@ def train_command(input, output, epochs, display, lr, name, save_epoch):
     status('starting training')
     for epoch in range(epochs):  # loop over the dataset multiple times
         train(trainloader, net, criterion, optimizer, epoch, display)
+#        print('test' + str(random.random()))
         # save out model every n epochs
         if save_epoch is not None:
             if epoch % save_epoch == save_epoch-1:

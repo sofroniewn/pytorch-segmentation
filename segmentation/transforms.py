@@ -3,7 +3,7 @@ Some transforms taken from
 https://github.com/ZijunDeng/pytorch-semantic-segmentation
 '''
 
-from numpy import array, int32, random
+from numpy import array, int32, random, asarray
 from numpy import linspace, meshgrid, dstack, vstack, sin
 from numpy.random import normal
 from skimage.transform import estimate_transform, warp
@@ -28,13 +28,15 @@ class Compose(object):
 
 class RandomHorizontallyFlip(object):
     def __call__(self, img, mask):
-        if random.random() < 0.5:
+        r = torch.rand(1).numpy()
+        if r < 0.5:
             return img.transpose(Image.FLIP_LEFT_RIGHT), mask.transpose(Image.FLIP_LEFT_RIGHT)
         return img, mask
 
 class RandomVerticallyFlip(object):
     def __call__(self, img, mask):
-        if random.random() < 0.5:
+        r = torch.rand(1).numpy()
+        if r < 0.5:
             return img.transpose(Image.FLIP_TOP_BOTTOM), mask.transpose(Image.FLIP_TOP_BOTTOM)
         return img, mask
 
@@ -58,7 +60,7 @@ class RandomRotate(object):
         self.degree = degree
 
     def __call__(self, img, mask):
-        rotate_degree = random.random() * 2 * self.degree - self.degree
+        rotate_degree = torch.rand(1).numpy() * 2 * self.degree - self.degree
         return img.rotate(rotate_degree, Image.BILINEAR), mask.rotate(rotate_degree, Image.NEAREST)
 
 class RandomCrop(object):
@@ -82,8 +84,10 @@ class RandomCrop(object):
         if w < tw or h < th:
             return img.resize((tw, th), Image.BILINEAR), mask.resize((tw, th), Image.NEAREST)
 
-        x1 = random.randint(0, w - tw)
-        y1 = random.randint(0, h - th)
+        r = torch.rand(1).numpy()
+        x1 = int(r*(w - tw))
+        r = torch.rand(1).numpy()
+        y1 = int(r*(h - th))
         return img.crop((x1, y1, x1 + tw, y1 + th)), mask.crop((x1, y1, x1 + tw, y1 + th))
 
 class RandomWarp(object):
@@ -104,10 +108,11 @@ class RandomWarp(object):
         src_rows, src_cols = meshgrid(src_rows, src_cols)
         src = dstack([src_cols.flat, src_rows.flat])[0]
 
-        dst_rows = src[:, 1] + normal(scale=self.scale, size=src[:, 1].shape)
-        dst_cols = src[:, 0] + normal(scale=self.scale, size=src[:, 1].shape)
+        dst_rows = src[:, 1] + self.scale*torch.randn(src[:, 1].shape).numpy()
+        dst_cols = src[:, 0] + self.scale*torch.randn(src[:, 1].shape).numpy()
         dst = vstack([dst_cols, dst_rows]).T
 
         tform = estimate_transform('piecewise-affine', src, dst)
-
-        return warp(img, tform, output_shape=img.size), warp(mask, tform, output_shape=mask.size)
+        warped_img = warp(asarray(img), tform, output_shape=img.size)
+        warped_mask = warp(asarray(mask), tform, output_shape=mask.size)
+        return Image.fromarray((255*warped_img).astype('uint8')), Image.fromarray((255*warped_mask).astype('uint8'))
