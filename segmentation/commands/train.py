@@ -49,7 +49,7 @@ def train_command(input, output, epochs, display, lr, resume, save_epoch):
     trainloader = DataLoader(train_dataset, batch_size=1,
                                           shuffle=True, num_workers=2)
 
-    val_dataset = BroadDataset(input, 'train', input_transform=input_transform, target_transform=target_transform)
+    val_dataset = BroadDataset(input, 'val', input_transform=input_transform, target_transform=target_transform)
     valloader = DataLoader(val_dataset, batch_size=1,
                                           shuffle=False, num_workers=2)
 
