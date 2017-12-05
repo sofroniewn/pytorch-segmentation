@@ -82,7 +82,7 @@ def train_command(input, output, epochs, display, lr, resume, save_epoch, num_cl
     status('starting training')
     for epoch in range(resume, resume+epochs):  # loop over the dataset multiple times
         results = train(trainloader, net, criterion, optimizer, epoch, display)
-        r = r.append(results)
+        r = r.append(results, ignore_index=True)
         r.to_csv(join(output,'train.csv'))
 
         #save out model every n epochs
@@ -100,7 +100,7 @@ def train_command(input, output, epochs, display, lr, resume, save_epoch, num_cl
                 else:
                     mkdir(save_path)
                 resultsV = validate(valloader, net, criterion, optimizer, epoch, True, save_path)
-                rV = rV.append(resultsV)
+                rV = rV.append(resultsV, ignore_index=True)
                 rV.to_csv(join(output,'val.csv'))
 
     status('finished training')
@@ -116,5 +116,5 @@ def train_command(input, output, epochs, display, lr, resume, save_epoch, num_cl
     else:
         mkdir(save_path)
     resultsV = validate(valloader, net, criterion, optimizer, epoch, True, save_path)
-    rV = rV.append(resultsV)
+    rV = rV.append(resultsV, ignore_index=True)
     rV.to_csv(join(output,'val.csv'))

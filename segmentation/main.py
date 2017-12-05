@@ -71,9 +71,10 @@ def validate(valloader, net, criterion, optimizer, epoch, save, output):
 
         total += labels.size(0)
         correct += loss
-        ind += 1
         r = {'epoch':[epoch+1], 'batch':[ind+1],'loss':[loss]}
         results = results.append(DataFrame(r), ignore_index=True)
+        ind += 1
+
     print('Mean loss: %.2f %%' % (
         correct / total))
     return results
