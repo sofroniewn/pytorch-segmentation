@@ -3,10 +3,13 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 from skimage.io import imsave
 import torch
+from pandas import DataFrame
 
 def train(trainloader, net, criterion, optimizer, epoch, display):
+    net.train()
     running_loss = 0.0
     count = 0.0
+    results = DataFrame([])
     for i, data in enumerate(trainloader, 0):
         # get the inputs
         inputs, labels = data
@@ -29,19 +32,24 @@ def train(trainloader, net, criterion, optimizer, epoch, display):
         # print statistics
         running_loss += loss.data[0]
         count += 1
+        r = {'epoch':[epoch+1],'batch':[i+1],'loss':[loss.data[0]]}
+        results = results.append(DataFrame(r), ignore_index=True)
         if i % display == display-1:    # print every 2000 mini-batches
             print('[%d, %5d] loss: %.3f' %
                   (epoch + 1, i + 1, running_loss / count))
             running_loss = 0.0
             count = 0.0
+    return results
 
-def validate(valloader, net, criterion, optimizer, save, output):
+def validate(valloader, net, criterion, optimizer, epoch, save, output):
+    net.eval()
     if save:
         torch.save(net.state_dict(), join(output, 'model.pth'))
         torch.save(optimizer.state_dict(), join(output, 'opt.pth'))
     correct = 0
     total = 0
     ind = 0
+    results = DataFrame([])
     for data in valloader:
         inputs, labels = data
 
@@ -64,6 +72,8 @@ def validate(valloader, net, criterion, optimizer, save, output):
         total += labels.size(0)
         correct += loss
         ind += 1
-
+        r = {'epoch':[epoch+1], 'batch':[ind+1],'loss':[loss]}
+        results = results.append(DataFrame(r), ignore_index=True)
     print('Mean loss: %.2f %%' % (
         correct / total))
+    return results

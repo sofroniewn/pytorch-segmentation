@@ -10,24 +10,34 @@ from torchvision import transforms
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
-from os.path import join, isdir
+from os.path import join, isdir, exists
 from os import mkdir
 from shutil import rmtree
 from numpy import random
+from pandas import DataFrame, read_csv
 
 @click.argument('output', nargs=1, metavar='<output directory>', required=False, default=None)
 @click.argument('input', nargs=1, metavar='<input directory>', required=True)
-@click.option('--resume', nargs=1, default=0, type=float, help='Epoch to resume from')
-@click.option('--epochs', nargs=1, default=2, type=float, help='Number of epochs')
-@click.option('--display', nargs=1, default=20, type=float, help='Number of train samples before displaying result')
-@click.option('--save_epoch', nargs=1, default=None, type=float, help='Number of epochs before saving')
+@click.option('--resume', nargs=1, default=0, type=int, help='Epoch to resume from')
+@click.option('--epochs', nargs=1, default=2, type=int, help='Number of epochs')
+@click.option('--display', nargs=1, default=20, type=int, help='Number of train samples before displaying result')
+@click.option('--num_classes_in', nargs=1, default=1, type=int, help='Number of input classes')
+@click.option('--save_epoch', nargs=1, default=None, type=int, help='Number of epochs before saving')
 @click.option('--lr', nargs=1, default=0.01, type=float, help='Learning rate')
 @click.command('train', short_help='train on input directory', options_metavar='<options>')
 
-def train_command(input, output, epochs, display, lr, resume, save_epoch):
+def train_command(input, output, epochs, display, lr, resume, save_epoch, num_classes_in):
     overwrite = True
-    epochs = int(epochs)
-    resume = int(resume)
+
+
+    if exists(join(output,'train.csv')):
+        r = read_csv(join(output,'train.csv'))
+    else:
+        r = DataFrame([])
+    if exists(join(output,'val.csv')):
+        rV = read_csv(join(output,'val.csv'))
+    else:
+        rV = DataFrame([])
 
     joint_transform = extended_transforms.Compose([
         extended_transforms.RandomHorizontallyFlip(),
@@ -55,9 +65,9 @@ def train_command(input, output, epochs, display, lr, resume, save_epoch):
 
     status('loading model')
     if torch.cuda.is_available():
-        net = UNet(1).cuda()
+        net = UNet(num_classes_in,1).cuda()
     else:
-        net = UNet(1)
+        net = UNet(num_classes_in,1)
     net.train()
 
     criterion = mIoULoss(size_average=False)
@@ -71,12 +81,14 @@ def train_command(input, output, epochs, display, lr, resume, save_epoch):
 
     status('starting training')
     for epoch in range(resume, resume+epochs):  # loop over the dataset multiple times
-        train(trainloader, net, criterion, optimizer, epoch, display)
-#        print('test' + str(random.random()))
-        # save out model every n epochs
+        results = train(trainloader, net, criterion, optimizer, epoch, display)
+        r = r.append(results)
+        r.to_csv(join(output,'train.csv'))
+
+        #save out model every n epochs
         if save_epoch is not None:
             if epoch % save_epoch == save_epoch-1:
-                snapshot_name = 'model-%04d' % epoch
+                snapshot_name = 'model-%04d' % (epoch + 1)
                 status('saving network %s' % snapshot_name)
                 save_path = join(output, snapshot_name)
                 if isdir(save_path) and not overwrite:
@@ -87,10 +99,12 @@ def train_command(input, output, epochs, display, lr, resume, save_epoch):
                     mkdir(save_path)
                 else:
                     mkdir(save_path)
-                validate(valloader, net, criterion, optimizer, True, save_path)
+                resultsV = validate(valloader, net, criterion, optimizer, epoch, True, save_path)
+                rV = rV.append(resultsV)
+                rV.to_csv(join(output,'val.csv'))
 
     status('finished training')
-    snapshot_name = 'model-%04d' % epoch
+    snapshot_name = 'model-%04d' % (epoch + 1)
     status('saving network %s' % snapshot_name)
     save_path = join(output, snapshot_name)
     if isdir(save_path) and not overwrite:
@@ -101,4 +115,6 @@ def train_command(input, output, epochs, display, lr, resume, save_epoch):
         mkdir(save_path)
     else:
         mkdir(save_path)
-    validate(valloader, net, criterion, True, save_path)
+    resultsV = validate(valloader, net, criterion, optimizer, epoch, True, save_path)
+    rV = rV.append(resultsV)
+    rV.to_csv(join(output,'val.csv'))
