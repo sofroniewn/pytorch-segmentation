@@ -71,7 +71,8 @@ def train_command(input, output, epochs, display, lr, resume, save_epoch, num_cl
     net.train()
 
     criterion = mIoULoss(size_average=False)
-    optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
+    #optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
+    optimizer = optim.Adam(net.parameters(), lr=lr)
 
     if resume is not 0:
         snapshot_name = 'model-%04d' % resume
