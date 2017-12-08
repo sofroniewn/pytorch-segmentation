@@ -1,9 +1,9 @@
 import click
 import segmentation.transforms as extended_transforms
-from segmentation.datasets import BroadDataset
+from segmentation.datasets import Dataset
 from segmentation.utilities import mIoULoss
 from segmentation.model import UNet
-from segmentation.main import train, validate
+from segmentation.main import evaluate
 from .common import success, status, error, warn
 import torch
 from torchvision import transforms
@@ -14,19 +14,17 @@ from os.path import join, isdir, exists
 from os import mkdir
 from shutil import rmtree
 from numpy import random
-from pandas import DataFrame, read_csv
 
 @click.argument('output', nargs=1, metavar='<output directory>', required=False, default=None)
 @click.argument('input', nargs=1, metavar='<input directory>', required=True)
 @click.option('--resume', nargs=1, default=0, type=int, help='Epoch to resume from')
 @click.option('--epochs', nargs=1, default=2, type=int, help='Number of epochs')
 @click.option('--display', nargs=1, default=20, type=int, help='Number of train samples before displaying result')
-@click.option('--num_classes_in', nargs=1, default=1, type=int, help='Number of input classes')
 @click.option('--save_epoch', nargs=1, default=None, type=int, help='Number of epochs before saving')
 @click.option('--lr', nargs=1, default=0.01, type=float, help='Learning rate')
 @click.command('train', short_help='train on input directory', options_metavar='<options>')
 
-def train_command(input, output, epochs, display, lr, resume, save_epoch, num_classes_in):
+def train_command(input, output, epochs, display, lr, resume, save_epoch):
     overwrite = True
 
 
@@ -54,20 +52,20 @@ def train_command(input, output, epochs, display, lr, resume, save_epoch, num_cl
     target_transform = extended_transforms.MaskToTensor()
 
     status('setting up dataset from %s' % input)
-    train_dataset = BroadDataset(input, 'train', joint_transform=joint_transform, input_transform=input_transform, target_transform=target_transform)
+    train_dataset = BroadDataset(join(input, 'train'), joint_transform=joint_transform, input_transform=input_transform, target_transform=target_transform)
 
     trainloader = DataLoader(train_dataset, batch_size=1,
                                           shuffle=True, num_workers=2)
 
-    val_dataset = BroadDataset(input, 'val', input_transform=input_transform, target_transform=target_transform)
+    val_dataset = BroadDataset(join(input, 'val'), input_transform=input_transform, target_transform=target_transform)
     valloader = DataLoader(val_dataset, batch_size=1,
                                           shuffle=False, num_workers=2)
 
     status('loading model')
     if torch.cuda.is_available():
-        net = UNet(num_classes_in,1).cuda()
+        net = UNet(1,1).cuda()
     else:
-        net = UNet(num_classes_in,1)
+        net = UNet(1,1)
     net.train()
 
     criterion = mIoULoss(size_average=False)

@@ -78,3 +78,25 @@ def validate(valloader, net, criterion, optimizer, epoch, save, output):
     print('Mean loss: %.2f %%' % (
         correct / total))
     return results
+
+def evaluate(loader, net, output):
+    net.eval()
+    ind = 0
+    for data in loader:
+        inputs, labels = data
+
+        if torch.cuda.is_available():
+            inputs, labels = Variable(inputs).cuda(), Variable(labels).cuda()
+        else:
+            inputs, labels = Variable(inputs), Variable(labels)
+
+        outputs = net(inputs)
+        prediction = F.sigmoid(outputs)
+        predict = prediction.squeeze(0).squeeze(0).data
+        if torch.cuda.is_available():
+            predict = predict.cpu().numpy()
+        else:
+            predict = predict.numpy()
+
+        imsave(join(output, 'predict_%04d.tif' % ind), (255*predict).astype('uint8'), plugin='tifffile', photometric='minisblack')
+        ind +=1
