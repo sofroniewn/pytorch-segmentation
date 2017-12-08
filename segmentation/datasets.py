@@ -21,7 +21,6 @@ class Dataset(Dataset):
                 on mask.
         """
         self.root_dir = root_dir
-        self.mode = mode
         self.names = sorted(glob(join(self.root_dir, 'image_*.tif')))
         self.masks = sorted(glob(join(self.root_dir, 'mask_*.tif')))
         self.joint_transform = joint_transform

@@ -79,7 +79,7 @@ def validate(valloader, net, criterion, optimizer, epoch, save, output):
         correct / total))
     return results
 
-def evaluate(loader, net, output):
+def run(loader, net, output):
     net.eval()
     ind = 0
     for data in loader:
