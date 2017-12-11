@@ -53,12 +53,12 @@ def train_command(input, output, epochs, display, lr, resume, save_epoch):
     target_transform = extended_transforms.MaskToTensor()
 
     status('setting up dataset from %s' % input)
-    train_dataset = BroadDataset(join(input, 'train'), joint_transform=joint_transform, input_transform=input_transform, target_transform=target_transform)
+    train_dataset = Dataset(join(input, 'train'), joint_transform=joint_transform, input_transform=input_transform, target_transform=target_transform)
 
     trainloader = DataLoader(train_dataset, batch_size=1,
                                           shuffle=True, num_workers=2)
 
-    val_dataset = BroadDataset(join(input, 'val'), input_transform=input_transform, target_transform=target_transform)
+    val_dataset = Dataset(join(input, 'val'), input_transform=input_transform, target_transform=target_transform)
     valloader = DataLoader(val_dataset, batch_size=1,
                                           shuffle=False, num_workers=2)
 
