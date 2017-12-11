@@ -14,6 +14,7 @@ from os.path import join, isdir, exists
 from os import mkdir
 from shutil import rmtree
 from numpy import random
+from pandas import DataFrame, read_csv
 
 @click.argument('output', nargs=1, metavar='<output directory>', required=False, default=None)
 @click.argument('input', nargs=1, metavar='<input directory>', required=True)
